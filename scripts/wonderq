@@ -1,0 +1,43 @@
+#!/bin/bash
+#set -x
+
+usage() { echo "HI"; }
+
+while getopts ":h:igp:c:" o; do
+    case "${o}" in
+        h)
+            HOST=${OPTARG}
+            ;;
+        i)
+            INFO=1
+            ;;
+	p)
+	    PUT=1
+	    MESSAGE=${OPTARG}
+	    ;;
+	g)
+	    GET=1
+	    ;;
+	c)
+	    COMPLETE=1
+	    MESSAGE_ID=${OPTARG}
+	    ;;	
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ $INFO ]; then
+	echo $(curl -s -X GET http://${HOST}/api/v1/info)
+elif [ $PUT ]; then
+	echo $(curl -s -d "${MESSAGE}" -H "Content-Type: application/json" -X POST http://${HOST}/api/v1/queue)
+elif [ $GET ]; then
+	echo $(curl -s -X GET http://${HOST}/api/v1/queue)
+elif [ $COMPLETE ]; then
+	echo $(curl -s -X POST -d "{}" http://${HOST}/api/v1/queue/${MESSAGE_ID})
+else
+	usage
+fi
+

@@ -1,0 +1,143 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "WonderQ Simple Application API",
+    "description": "Simple queue server for Wonder"
+  },
+  "host": "localhost:3001",
+  "basePath": "/api/v1",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/info": {
+      "get": {
+        "tags": [
+          "Info"
+        ],
+        "summary": "Get status/information of the current system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Info"
+            }
+          }
+        }
+      }
+    },
+    "/queue": {
+      "get": {
+        "tags": [
+          "Queue"
+        ],
+        "summary": "Consume a message for consumption",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Queue"
+        ],
+        "summary": "Publish a JSON message to the broker",
+        "consumes": [
+          "text/plain"
+          ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "message object that needs to be added to the broker",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "examples": {
+              "simpleMessage": {
+                "value": "{\"hi\": \"Bye\"}"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "messageId":"string"
+            }
+          }
+        }
+      }
+    },
+    "/queue/{messageId}": {
+      "post": {
+        "tags": [
+          "Queue"
+        ],
+        "summary": "Mark message processed by ID",
+        "description": "Allows the marking of a consumed message as fully processed by the worker to the broker",
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "description": "ID of the message to be marked as processed",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Info": {
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "type": "integer"
+        },
+        "pending": {
+          "type": "integer"
+        }
+      }
+    },
+    "Message" : {
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "_createTime": {
+          "type": "integer"
+        },
+        "_dequeueTime": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
