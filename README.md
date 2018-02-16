@@ -39,13 +39,9 @@ This script publishes a message to the broker, and then waits 2 seconds.  Then i
 This scripts publishs a message to the broker, and then waits 2 seconds.  Then it consumes a message from the broker and waits over the timeout of 10 seconds, forcing the message to be returned to the work queue.  Then it consumes a message again, waits 2 seconds, then marks that message ID as complete.  Expected behavior is that hte broker will end up in a empty state despite the first timeout failure.
 
 ## Discussion
+First off, I will say NodeJS is not my most practiced framework, so I acknowledge my probably less than ideally clean code. I have tried to use third-party implementations and best practices wherever possible, including other libraries for service, queueing, hashmaping, and api documentation.
+One limitation of this service as written is message storage is limited to instance memory. Abstracting the work or pending storage to a database or a REDI might dramatically improve the ability to function at larger scale. At a minimum, moving the objects to a MemCache would allow for distributed storage on such a simple Q.
+The timeout retry implementation is very simple, quick, and dirty. It doesn't handle complex locking but instead relies on retry to handling any racing between in the timeout and completion marking. In this case all processing on the consumers would need to assume idempotent to make sure no unintended side-effects occur due to reprocessing messages.
+The CLI was implemented with BASH to highlight the ability to write VERY simple interfaces that are highly compatible across many system. Written instead in python, or Java, or other higher languages would give better features at the trade off of wide interoperability.
+For true scalability, I'd never write this project in house. I feel like it is re-inventing the wheel for other much more capable and free alternatives like ActiveMQ or RabbitMQ, both of which are significantly more scalable, reliable, and fast.
 
-First off, I will say NodeJS is not my most practiced framework, so I acknowledge my probably less than ideally clean code.  I have tried to use third-party implementations and best practices wherever possible, including other libraries for service, queueing, hashmaping, and api documentation.  
-
-One limitation of this service as written is message storage is limited to instance memory.  Abstracitng the work or pending storage to a database or a REDI might dramatically improve the ability to function at larger scale.  At a minimum, moving the objects to a MemCache would allow for distributed storage on such a simple Q.
-
-The timeout retry implementation is very simple, quick, and dirty.  It doesn't handle complex locking but instead relies on retry to handling any racing between in the timeout and completion marking.  In this case all processing on the consumers would need to assume idepotence to make sure no unintented side-effects occur due to reprocessing messages.
-
-The CLI was implemented with BASH to highlight the ability to write VERY simple interfaces that are highly compatibale across many system.  Written instead in python, or Java, or other higher languages would give better features at the trade off of wide interoperability.
-
-For true scalablity, I'd never write this project in house.  I feel like it is re-inventing the wheel for other much more capable and free alternatives like ActiveMQ or RabbitMQ, both of which are significantly more scalable, reliable, and fast.
